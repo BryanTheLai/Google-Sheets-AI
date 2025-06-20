@@ -27,7 +27,7 @@ function onOpen() {
 function showChatSidebar() {
   const html = HtmlService.createHtmlOutputFromFile('Chat')
     .setTitle('MAGE Assistant')
-    .setWidth(350);
+    .setWidth(500);
   SpreadsheetApp.getUi().showSidebar(html);
 }
 
@@ -146,7 +146,14 @@ function handleGlobalAIResponse(aiResponseJSON) {
                       if (style.fontStyle) newStyle.setItalic(style.fontStyle === 'italic');
                       return SpreadsheetApp.newRichTextValue().setText(cell.getText()).setTextStyle(newStyle.build()).build();
                   })));
-                  if (style.background) range.setBackground(style.background);
+                  if (style.background) {
+                      // Skip black backgrounds to avoid unreadable text
+                      if (style.background.toLowerCase() !== '#000000') {
+                          range.setBackground(style.background);
+                      } else {
+                          console.warn(`Skipped black background for ${edit.sheet}!R${edit.row}C${edit.column}`);
+                      }
+                  }
               } catch(e) {
                   console.error(`Failed to format ${edit.sheet}!R${edit.row}C${edit.column}: ${e.message}`);
               }
