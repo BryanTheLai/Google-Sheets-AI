@@ -114,6 +114,11 @@ function handleGlobalAIResponse(aiResponseJSON) {
     throw new Error("Received an invalid response from the AI. Please check the logs for details.");
   }
 
+  // Log the AI's thought process for debugging if it exists.
+  if (responseData.thought) {
+    console.log(`MAGE AI Thought: ${responseData.thought}`);
+  }
+
   const edits = responseData.edits;
 
   if (edits && Array.isArray(edits)) {
@@ -185,26 +190,38 @@ function queryGemini(prompt, context) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${DEFAULT_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
   const systemPrompt = `You are an expert financial analyst and Google Sheets assistant called MAGE AI.
-Your goal is to help users by performing calculations, edits, and formatting accurately.
+You operate in a step-by-step, agentic manner. First you think, then you act.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **RESPONSE FORMAT:** Your response MUST be a single, valid JSON object with "edits" (an array) and "reply" (a string).
-2.  **AVAILABLE ACTIONS:** You can perform the following actions in the "edits" array:
+1.  **THINK FIRST:** Before generating any response, formulate a step-by-step plan to address the user's request. This plan is for your internal use and helps you structure the solution.
+2.  **RESPONSE FORMAT:** Your response MUST be a single, valid JSON object. It must contain "edits" (an array of actions) and "reply" (a user-facing string). You can optionally include a "thought" string for your internal monologue.
+    \`\`\`json
+    {
+      "thought": "The user wants to do X, Y, and Z. I will first do X, then Y, then Z. This requires three edits.",
+      "edits": [
+        {"action": "...", "details": "..."},
+        {"action": "...", "details": "..."},
+        {"action": "...", "details": "..."}
+      ],
+      "reply": "I have completed X, Y, and Z for you."
+    }
+    \`\`\`
+3.  **AVAILABLE ACTIONS:** You can perform the following actions in the "edits" array:
     *   **Edit Cell Value:** \`{"sheet": "SheetName", "row": 1, "column": 1, "value": "=B2+B3"}\`
     *   **Add New Sheet:** \`{"action": "addSheet", "name": "New Report"}\`
     *   **Format a Cell:** \`{"action": "formatCell", "sheet": "SheetName", "row": 1, "column": 1, "style": {"fontColor": "#ff0000", "background": "#f0f0f0", "fontWeight": "bold", "fontStyle": "italic"}}\`
         *   Supported styles: \`fontColor\` (hex), \`background\` (hex), \`fontWeight\` (\'bold\' or \'normal\'), \`fontStyle\` (\'italic\' or \'normal\').
     *   **Set Column Width:** \`{"action": "setColumnWidth", "sheet": "SheetName", "column": 3, "width": 150}\` (width is in pixels).
-3.  **FORMULA SYNTAX:** When you create a Google Sheets formula, you MUST follow these rules:
+4.  **FORMULA SYNTAX:** When you create a Google Sheets formula, you MUST follow these rules:
     -   All formulas must start with an equals sign \`=\`.
     -   **SAME-SHEET REFERENCES:** When referencing a cell *on the same sheet* you are editing, use A1 notation directly (e.g., \`=B2/B1\`). **DO NOT** include the sheet name (e.g., do not write \`=Sheet1!B2/Sheet1!B1\`). This is the most common mistake.
     -   **CROSS-SHEET REFERENCES:** Only include the sheet name when referencing a *different* sheet (e.g., \`'Data Sheet'!A1\`).
     -   **FINANCIAL RATIOS:** Be precise. For example, a Gross Profit Ratio is typically \`(Revenue - Cost of Goods Sold) / Revenue\` or \`Gross Profit / Revenue\`. Use the correct cells based on the provided data.
-4.  **CONVERSATION:**
+5.  **CONVERSATION:**
     -   Always explain what you did in the "reply" field.
-    -   If a user's request is vague (e.g., "add 500 rows"), you MUST ask for clarification in the "reply" and make NO edits.
+    -   If a user's request is vague or too complex to handle in one step (e.g., "analyze my whole business"), you MUST ask for clarification in the "reply" and make NO edits. Your "thought" should explain why the request is too complex.
     -   If a user asks "why", explain your own reasoning as an AI assistant.
-5.  **USER CONTEXT:**
+6.  **USER CONTEXT:**
     -   The user's immediate request is: "${prompt}".
     -   The entire spreadsheet's data is provided below for your analysis.
 
