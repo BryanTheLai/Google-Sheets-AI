@@ -164,9 +164,14 @@
     </div>
 
     <script>
+      // Client-side chat history to maintain context
       const chatContainer = document.getElementById('chat-container');
       const input = document.getElementById('prompt-input');
       const sendButton = document.getElementById('send-button');
+      // Initialize history with initial AI greeting
+      let chatHistory = [
+        { sender: 'ai', text: "Hello! I'm your MAGE assistant. I can help you analyze data, generate formulas, and edit your sheets. What would you like to do?" }
+      ];
 
       // Send message on Enter key press
       input.addEventListener('keypress', function(event) {
@@ -207,6 +212,8 @@
 
         const userMsgDiv = createMessageDiv(prompt, 'user');
         chatContainer.appendChild(userMsgDiv);
+        // Add user message to history
+        chatHistory.push({ sender: 'user', text: prompt });
 
         // Show thinking indicator.
         const loaderWrapper = document.createElement('div');
@@ -224,7 +231,8 @@
         google.script.run
           .withSuccessHandler(onSuccess)
           .withFailureHandler(onFailure)
-          .processChatMessage(prompt);
+          // Pass chat history to server for context
+          .processChatMessage(prompt, chatHistory);
       }
 
       // Handles displaying the AI response or an error message.
@@ -250,7 +258,10 @@
 
       // Success callback for google.script.run.
       function onSuccess(reply) {
-        handleResponse(reply || 'Done. I\'ve applied the edits to your sheet(s).');
+        const message = reply || 'Done. I\'ve applied the edits to your sheet(s).';
+        // Add AI response to history
+        chatHistory.push({ sender: 'ai', text: message });
+        handleResponse(message);
       }
 
       // Failure callback for google.script.run.

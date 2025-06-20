@@ -32,15 +32,24 @@ function showChatSidebar() {
 }
 
 /**
- * This is the primary function called from the client-side chat UI.
+ * This function now accepts chat history for context-aware conversations.
  */
-function processChatMessage(prompt) {
+function processChatMessage(prompt, chatHistory) {
   if (!prompt) {
     throw new Error("Prompt cannot be empty.");
   }
   try {
+    // Build conversation context from history
+    let fullPrompt = prompt;
+    if (Array.isArray(chatHistory) && chatHistory.length) {
+      const historyText = chatHistory.map(item => {
+        const who = item.sender === 'user' ? 'User' : 'AI';
+        return `${who}: ${item.text}`;
+      }).join('\n');
+      fullPrompt = historyText + '\nUser: ' + prompt;
+    }
     const context = getAllDataFromAllSheets();
-    const aiResponseJSON = queryGemini(prompt, context);
+    const aiResponseJSON = queryGemini(fullPrompt, context);
     const reply = handleGlobalAIResponse(aiResponseJSON);
     return reply;
   } catch (e) {
@@ -296,10 +305,10 @@ function MAGE(prompt, range) {
  */
 function getActiveSheetData() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    if (sheet.getLastRow() > 0 && sheet.getLastColumn() > 0) {
-      const maxRows = Math.min(sheet.getLastRow(), 100); // Limit rows
-      const maxCols = Math.min(sheet.getLastColumn(), 25); // Limit columns
-      return sheet.getRange(1, 1, maxRows, maxCols).getValues();
+    const lastRow = sheet.getLastRow();
+    const lastCol = sheet.getLastColumn();
+    if (lastRow > 0 && lastCol > 0) {
+      return sheet.getRange(1, 1, lastRow, lastCol).getValues();
     }
     return [];
 }
