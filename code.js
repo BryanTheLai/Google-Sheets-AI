@@ -280,14 +280,14 @@ Your task is to analyze the user's request and the data, then generate the appro
 
 /**
  * Custom function to use Gemini AI directly in a sheet cell.
- * Example: =MAGE("Summarize this data", A1:B10)
+ * Example: =MAHO("Summarize this data", A1:B10)
  *
  * @param {string} prompt The prompt to send to the AI.
  * @param {string[][]} [range] Optional. The range of cells to provide as context.
  * @return The AI's response as a string.
  * @customfunction
  */
-function MAGE(prompt, range) {
+function MAHO(prompt, range) {
   if (!prompt) {
     return "Error: Prompt cannot be empty.";
   }

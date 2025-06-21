@@ -1,6 +1,6 @@
-# Google Sheets MAGE AI Assistant
+# Google Sheets MAHO AI Assistant
 
-I made this project for fun, it adds an AI-powered chat assistant to Google Sheets using Google Apps Script (MAGE AI).
+I made this project for fun, it adds an AI-powered chat assistant to Google Sheets using Google Apps Script (MAHO AI).
 It lets you chat, generate formulas, and edit your sheet with the power of Gemini AI.
 
 ## Setup
@@ -16,14 +16,14 @@ It lets you chat, generate formulas, and edit your sheet with the power of Gemin
    - Add a property named `GEMINI_API_KEY` and paste your Gemini API key.
 5. Save and **Deploy ▶️ Test deployments** to grant permissions.
 6. Reload your Google Sheet.
-7. Click the **MAGE AI** menu ▶️ **Show Chat Assistant** to open the sidebar.
+7. Click the **MAHO AI** menu ▶️ **Show Chat Assistant** to open the sidebar.
 
 ## Usage
 
 - Type your prompt in the chat sidebar and send to analyze or edit your sheet.
 - Or use the custom function in any cell:
   ```
-  =MAGE("Summarize this data", A1:B10)
+  =MAHO("Summarize this data", A1:B10)
   ```
 
 That's it! Enjoy your AI-powered spreadsheet assistant.
