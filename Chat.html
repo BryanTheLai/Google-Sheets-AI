@@ -148,11 +148,11 @@
     </style>
 </head>
 <body>
-    <div id="header">MAGE Sheets Assistant</div>
+    <div id="header">Maho AI Assistant</div>
     <div id="chat-container">
        <div class="message-wrapper ai-message">
             <div class="avatar ai-avatar">AI</div>
-            <div class="message">Hello! I'm your MAGE assistant. I can help you analyze data, generate formulas, and edit your sheets. What would you like to do?</div>
+            <div class="message">Hello! I'm your Maho AI assistant. I can help you analyze data, generate formulas, and edit your sheets. What would you like to do?</div>
        </div>
     </div>
 
@@ -170,7 +170,7 @@
       const sendButton = document.getElementById('send-button');
       // Initialize history with initial AI greeting
       let chatHistory = [
-        { sender: 'ai', text: "Hello! I'm your MAGE assistant. I can help you analyze data, generate formulas, and edit your sheets. What would you like to do?" }
+        { sender: 'ai', text: "Hello! I'm your Maho AI assistant. I can help you analyze data, generate formulas, and edit your sheets. What would you like to do?" }
       ];
 
       // Send message on Enter key press
@@ -218,7 +218,7 @@
         // Show thinking indicator.
         const loaderWrapper = document.createElement('div');
         loaderWrapper.className = 'loader-wrapper';
-        loaderWrapper.innerHTML = '<div class="loader"></div><div class="thinking-text">MAGE is thinking...</div>';
+        loaderWrapper.innerHTML = '<div class="loader"></div><div class="thinking-text">Maho AI is thinking...</div>';
         chatContainer.appendChild(loaderWrapper);
         
         input.value = '';

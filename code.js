@@ -16,7 +16,7 @@ const DEFAULT_MODEL = 'gemini-2.5-flash';
  */
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('MAGE AI')
+    .createMenu('Maho AI')
     .addItem('Show Chat Assistant', 'showChatSidebar')
     .addToUi();
 }
@@ -26,7 +26,7 @@ function onOpen() {
  */
 function showChatSidebar() {
   const html = HtmlService.createHtmlOutputFromFile('Chat')
-    .setTitle('MAGE Assistant')
+    .setTitle('Maho AI Assistant')
     .setWidth(500);
   SpreadsheetApp.getUi().showSidebar(html);
 }
@@ -74,7 +74,7 @@ function onEdit(e) {
   const scriptLock = LockService.getScriptLock();
   if (scriptLock.tryLock(100)) {
     try {
-      range.setNote('MAGE AI is thinking...');
+      range.setNote('Maho AI is thinking...');
       const prompt = `In sheet "${sheet.getName()}", a user just changed cell ${range.getA1Notation()} to "${editedValue}". Analyze this within the workbook context and perform logical follow-up edits.`;
       const context = getAllDataFromAllSheets();
       const aiResponseJSON = queryGemini(prompt, context);
@@ -84,7 +84,7 @@ function onEdit(e) {
       range.clearNote();
     } catch (error) {
       console.error(`onEdit Error: ${error.message}`);
-      range.setNote(`MAGE AI Error: ${error.message}`);
+      range.setNote(`Maho AI Error: ${error.message}`);
     } finally {
       scriptLock.releaseLock();
     }
@@ -125,7 +125,7 @@ function handleGlobalAIResponse(aiResponseJSON) {
 
   // Log the AI's thought process for debugging if it exists.
   if (responseData.thought) {
-    console.log(`MAGE AI Thought: ${responseData.thought}`);
+    console.log(`Maho AI Thought: ${responseData.thought}`);
   }
 
   const edits = responseData.edits;
@@ -205,7 +205,7 @@ function handleGlobalAIResponse(aiResponseJSON) {
 function queryGemini(prompt, context) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${DEFAULT_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-  const systemPrompt = `You are an expert financial analyst and Google Sheets assistant called MAGE AI.
+  const systemPrompt = `You are an expert financial analyst and Google Sheets assistant called Maho AI.
 You operate in a step-by-step, agentic manner. First you think, then you act.
 
 **CRITICAL INSTRUCTIONS:**
