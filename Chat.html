@@ -3,6 +3,7 @@
 <head>
     <base target="_top">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -54,6 +55,9 @@
             outline: none;
             font-size: 14px;
             background-color: #f9fafb;
+            resize: none;
+            overflow-y: hidden;
+            line-height: 1.5;
         }
         #prompt-input:focus {
             border-color: var(--accent-color);
@@ -157,7 +161,7 @@
     </div>
 
     <div id="input-area">
-      <input type="text" id="prompt-input" placeholder="e.g., 'Sum column B for me'">
+      <textarea id="prompt-input" placeholder="e.g., 'Sum column B for me'" rows="1"></textarea>
       <button id="send-button" onclick="sendMessage()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
@@ -173,6 +177,12 @@
         { sender: 'ai', text: "Hello! I'm your Maho AI assistant. I can help you analyze data, generate formulas, and edit your sheets. What would you like to do?" }
       ];
 
+      // Auto-resize textarea as user types.
+      input.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = (this.scrollHeight) + 'px';
+      });
+
       // Send message on Enter key press
       input.addEventListener('keypress', function(event) {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -183,37 +193,38 @@
 
       // Creates a chat message bubble with avatar.
       function createMessageDiv(text, sender) {
-          const wrapper = document.createElement('div');
-          wrapper.className = `message-wrapper ${sender}-message`;
+         const wrapper = document.createElement('div');
+         wrapper.className = `message-wrapper ${sender}-message`;
 
-          const avatar = document.createElement('div');
-          avatar.className = `avatar ${sender}-avatar`;
-          avatar.textContent = sender === 'user' ? 'ME' : 'AI';
+         const avatar = document.createElement('div');
+         avatar.className = `avatar ${sender}-avatar`;
+         avatar.textContent = sender === 'user' ? 'ME' : 'AI';
 
-          const messageDiv = document.createElement('div');
-          messageDiv.className = 'message';
-          messageDiv.textContent = text;
+         const messageDiv = document.createElement('div');
+         messageDiv.className = 'message';
+         // Render markdown without a timestamp
+         messageDiv.innerHTML = marked.parse(text);
 
-          // Appends avatar and message in correct order based on sender.
-          if (sender === 'user') {
-              wrapper.appendChild(messageDiv);
-              wrapper.appendChild(avatar);
-          } else {
-              wrapper.appendChild(avatar);
-              wrapper.appendChild(messageDiv);
-          }
-          return wrapper;
-      }
+         // Appends avatar and message in correct order based on sender.
+         if (sender === 'user') {
+             wrapper.appendChild(messageDiv);
+             wrapper.appendChild(avatar);
+         } else {
+             wrapper.appendChild(avatar);
+             wrapper.appendChild(messageDiv);
+         }
+         return wrapper;
+     }
 
       // Sends user prompt to the Apps Script backend.
       function sendMessage() {
         const prompt = input.value;
         if (!prompt.trim()) return;
 
+        // Store user message without timestamp
+        chatHistory.push({ sender: 'user', text: prompt });
         const userMsgDiv = createMessageDiv(prompt, 'user');
         chatContainer.appendChild(userMsgDiv);
-        // Add user message to history
-        chatHistory.push({ sender: 'user', text: prompt });
 
         // Show thinking indicator.
         const loaderWrapper = document.createElement('div');
@@ -222,6 +233,7 @@
         chatContainer.appendChild(loaderWrapper);
         
         input.value = '';
+        input.style.height = 'auto'; // Reset height after sending
         input.disabled = true;
         sendButton.disabled = true;
 
@@ -259,9 +271,18 @@
       // Success callback for google.script.run.
       function onSuccess(reply) {
         const message = reply || 'Done. I\'ve applied the edits to your sheet(s).';
-        // Add AI response to history
+        // Store AI response without timestamp
         chatHistory.push({ sender: 'ai', text: message });
-        handleResponse(message);
+        const aiMsgDiv = createMessageDiv(message, 'ai');
+        // Remove loader and append AI message
+        const loader = chatContainer.querySelector('.loader-wrapper');
+        if (loader) loader.remove();
+        chatContainer.appendChild(aiMsgDiv);
+        // Re-enable input and scroll
+        input.disabled = false;
+        sendButton.disabled = false;
+        input.focus();
+        chatContainer.scrollTop = chatContainer.scrollHeight;
       }
 
       // Failure callback for google.script.run.
