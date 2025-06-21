@@ -3,6 +3,8 @@
 I made this project for fun, it adds an AI-powered chat assistant to Google Sheets using Google Apps Script (MAHO AI).
 It lets you chat, generate formulas, and edit your sheet with the power of Gemini AI.
 
+[Watch the video](https://www.youtube.com/watch?v=gY3jIOUUVkI)
+
 ## Setup
 
 1. Open your Google Sheet.
