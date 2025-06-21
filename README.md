@@ -27,3 +27,13 @@ It lets you chat, generate formulas, and edit your sheet with the power of Gemin
   ```
 
 That's it! Enjoy your AI-powered spreadsheet assistant.
+
+
+## Example Prompt
+```
+Create a "Customer Analysis" sheet with columns A-E for ID, Sign-up Date, Avg Purchase Value, Purchase Frequency, and Lifespan. 
+
+Add 10 rows of sample data with formatted headers.
+
+Add a "Customer Lifetime Value" (CLV) column in F with the correct formula using the other columns.
+```
